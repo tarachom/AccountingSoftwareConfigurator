@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>configurator.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="CodeGeneration.xslt">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Comparison.xslt" />
+    <Content Include="ComparisonAnalize.xslt">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="configurator.ico" />
+    <Content Include="Constructor.xslt">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="UnloadingAndLoadingDataSQL.xslt" />
+    <Content Include="UnloadingAndLoadingDataXML.xslt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="6.0.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AccountingSoftware">
+      <HintPath>..\..\..\..\VSNet6\AccountingSoftware\AccountingSoftware\bin\Release\net6.0\AccountingSoftware.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <PropertyGroup />
+</Project>
