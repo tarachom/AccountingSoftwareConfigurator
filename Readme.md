@@ -2,7 +2,7 @@
 
  <img src="https://accounting.org.ua/images/configuration.png" /> <b>Програма для проектування бази даних.</b>
 
-.NET 6
+.NET 6 | WinForms
 
   Скачати програму      https://accounting.org.ua/configurator.html <br/>
   
