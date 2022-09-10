@@ -36,8 +36,11 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AccountingSoftware">
-      <HintPath>..\..\..\..\VSNet6\AccountingSoftware\AccountingSoftware\bin\Release\net6.0\AccountingSoftware.dll</HintPath>
+      <HintPath>..\..\AccountingSoftware\AccountingSoftware\bin\Debug\net6.0\AccountingSoftware.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="&#xD;&#xA;copy $(ProjectDir)CodeGeneration.xslt            $(TargetDir)CodeGeneration.xslt&#xD;&#xA;copy $(ProjectDir)Comparison.xslt                $(TargetDir)Comparison.xslt&#xD;&#xA;copy $(ProjectDir)ComparisonAnalize.xslt         $(TargetDir)ComparisonAnalize.xslt&#xD;&#xA;&#xD;&#xA;copy $(ProjectDir)UnloadingAndLoadingDataXML.xslt     $(TargetDir)UnloadingAndLoadingDataXML.xslt&#xD;&#xA;copy $(ProjectDir)UnloadingAndLoadingDataSQL.xslt     $(TargetDir)UnloadingAndLoadingDataSQL.xslt&#xD;&#xA;" />
+  </Target>
 </Project>

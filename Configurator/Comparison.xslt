@@ -26,12 +26,6 @@ limitations under the License.
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml" indent="yes" />
 
-  <!-- Файл конфігурації -->
-  <xsl:param name="Configuration" />
-
-  <!-- Файл попередньої копії конфігурації -->
-  <xsl:param name="SecondConfiguration" />
-
   <xsl:template name="FieldsControl">
 	<xsl:param name="TableName" />
     <xsl:param name="InfoSchemaFieldList" />
@@ -624,9 +618,9 @@ limitations under the License.
 
     <root>
 
-      <xsl:variable name="InfoSchemaTableList" select="InformationSchema/Table" />
-      <xsl:variable name="documentConfiguration" select="document($Configuration)" />
-      <xsl:variable name="documentSecondConfiguration" select="document($SecondConfiguration)" />
+      <xsl:variable name="InfoSchemaTableList" select="root/InformationSchema/Table" />
+      <xsl:variable name="documentConfiguration" select="root/NewConfiguration" />
+      <xsl:variable name="documentSecondConfiguration" select="root/SecondConfiguration" />
 
       <xsl:for-each select="$documentConfiguration/Configuration/ConstantsBlocks">
         <xsl:variable name="ConfObjName">Константи</xsl:variable>

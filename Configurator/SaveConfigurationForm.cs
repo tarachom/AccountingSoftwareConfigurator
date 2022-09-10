@@ -37,14 +37,14 @@ namespace Configurator
 
 				if (!String.IsNullOrEmpty(bodySelect))
 				{
-					richTextBoxInfo.SelectionFont = new Font("Consolas"/*"Microsoft Sans Serif"*/, 10, FontStyle.Underline);
+					//richTextBoxInfo.SelectionFont = new Font("Consolas"/*"Microsoft Sans Serif"*/, 10, FontStyle.Underline);
 					richTextBoxInfo.SelectionColor = Color.DarkBlue;
 					richTextBoxInfo.AppendText(bodySelect);
 				}
 
 				if (!String.IsNullOrEmpty(bodySelect))
 				{
-					richTextBoxInfo.SelectionFont = new Font("Consolas", 10);
+					//richTextBoxInfo.SelectionFont = new Font("Consolas", 10);
 					richTextBoxInfo.SelectionColor = Color.Black;
 				}
 
@@ -113,16 +113,24 @@ namespace Configurator
 			{
 				Configuration.SaveInformationSchema(informationSchema, Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\InformationSchema.xml");
 
-				ApendLine("4. Порівняння конфігурації та бази даних", "", "\n");
-				try
+                ApendLine("4. Створення загального файлу для порівняння", "", "\n");
+
+                Configuration.CreateOneFileForComparison(
+                    Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\InformationSchema.xml",
+                    Conf.PathToTempXmlFileConfiguration,
+                    Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\" + Conf.PathToCopyXmlFileConfiguration,
+                    Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\ComparisonAllData.xml"
+                );
+
+                ApendLine("5. Порівняння конфігурації та бази даних", "", "\n");
+
+                try
 				{
-					Configuration.Comparison(
-						Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\InformationSchema.xml",
-						PathToXsltTemplate + @"\Comparison.xslt",
-						Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\Comparison.xml",
-						Conf.PathToTempXmlFileConfiguration,
-						Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\" + Conf.PathToCopyXmlFileConfiguration);
-				}
+                    Configuration.Comparison(
+                        Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\ComparisonAllData.xml",
+                        PathToXsltTemplate + @"\Comparison.xslt",
+                        Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\Comparison.xml");
+                }
 				catch (Exception ex)
 				{
 					ApendLine(ex.Message, "");
@@ -334,15 +342,21 @@ namespace Configurator
 			ConfigurationInformationSchema informationSchema = Program.Kernel.DataBase.SelectInformationSchema();
 			Configuration.SaveInformationSchema(informationSchema, Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\InformationSchema.xml");
 
-			ApendLine("3. Порівняння конфігурації та бази даних", "");
-			Configuration.Comparison(
-				Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\InformationSchema.xml",
-				PathToXsltTemplate + @"\Comparison.xslt",
-				Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\Comparison.xml",
-				Conf.PathToTempXmlFileConfiguration,
-				Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\" + Conf.PathToCopyXmlFileConfiguration);
+            ApendLine("3. Створення загального файлу для порівняння", "", "\n");
+            Configuration.CreateOneFileForComparison(
+                Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\InformationSchema.xml",
+                Conf.PathToTempXmlFileConfiguration,
+                Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\" + Conf.PathToCopyXmlFileConfiguration,
+                Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\ComparisonAllData.xml"
+            );
 
-			ApendLine("4. Створення команд SQL", "", "\n");
+            ApendLine("4. Порівняння конфігурації та бази даних", "");
+            Configuration.Comparison(
+                    Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\ComparisonAllData.xml",
+                    PathToXsltTemplate + @"\Comparison.xslt",
+                    Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\Comparison.xml");
+
+			ApendLine("5. Створення команд SQL", "", "\n");
 			Configuration.ComparisonAnalizeGeneration(
 				Path.GetDirectoryName(Conf.PathToXmlFileConfiguration) + @"\Comparison.xml",
 				PathToXsltTemplate + @"\ComparisonAnalize.xslt",
@@ -452,24 +466,24 @@ namespace Configurator
 
 			PathToXsltTemplate = assemblyLocation;
 
-			Thread thread = new Thread(new ThreadStart(SaveAndAnalize));
-			thread.Start();
-		}
+            Thread thread = new Thread(new ThreadStart(SaveAndAnalize));
+            thread.Start();
+        }
 
 		private void buttonAnalize_Click(object sender, EventArgs e)
 		{
 			buttonAnalize.Enabled = false;
 
-			Thread thread = new Thread(new ThreadStart(SaveAnalizeAndCreateSQL));
-			thread.Start();
-		}
+            Thread thread = new Thread(new ThreadStart(SaveAnalizeAndCreateSQL));
+            thread.Start();
+        }
 
 		private void buttonSave_Click(object sender, EventArgs e)
 		{
 			buttonAnalize.Enabled = false;
 			buttonSave.Enabled = false;
 
-			Thread thread = new Thread(new ThreadStart(ExecuteSQLAndGenerateCode));
+            Thread thread = new Thread(new ThreadStart(ExecuteSQLAndGenerateCode));
 			thread.Start();			
 		}
 
