@@ -67,7 +67,7 @@ namespace Configurator
             foreach (ConfigurationInformationSchema_Table table in informationSchema.Tables.Values)
             {
                 if (Cancel)
-                    thread.Abort();
+                    break;
 
                 ApendLine($" --> {table.TableName}");
 

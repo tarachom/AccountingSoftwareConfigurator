@@ -156,222 +156,178 @@ namespace Configurator
             xmlWriter.WriteStartDocument();
             xmlWriter.WriteStartElement("root");
 
-            ApendLine("КОНСТАНТИ");
-
-            xmlWriter.WriteStartElement("Constants");
-            foreach (ConfigurationConstantsBlock configurationConstantsBlock in Conf.ConstantsBlock.Values)
+            if (!Cancel)
             {
-                if (Cancel)
-                {
-                    xmlWriter.Close();
-                    return;
-                }
+                ApendLine("КОНСТАНТИ");
 
-                ApendLine(configurationConstantsBlock.BlockName);
-
-                foreach (ConfigurationConstants configurationConstants in configurationConstantsBlock.Constants.Values)
+                xmlWriter.WriteStartElement("Constants");
+                foreach (ConfigurationConstantsBlock configurationConstantsBlock in Conf.ConstantsBlock.Values)
                 {
                     if (Cancel)
-                    {
-                        xmlWriter.Close();
-                        return;
-                    }
+                        break;
 
-                    ApendLine(" --> Константа: " + configurationConstants.Name);
+                    ApendLine(configurationConstantsBlock.BlockName);
 
-                    xmlWriter.WriteStartElement("Constant");
-                    xmlWriter.WriteAttributeString("name", configurationConstants.Name);
-                    xmlWriter.WriteAttributeString("col", configurationConstants.NameInTable);
-
-                    //WriteTabularPartsInfo(xmlWriter, configurationConstants.TabularParts);
-
-                    foreach (ConfigurationObjectTablePart tablePart in configurationConstants.TabularParts.Values)
+                    foreach (ConfigurationConstants configurationConstants in configurationConstantsBlock.Constants.Values)
                     {
                         if (Cancel)
+                            break;
+
+                        ApendLine(" --> Константа: " + configurationConstants.Name);
+
+                        xmlWriter.WriteStartElement("Constant");
+                        xmlWriter.WriteAttributeString("name", configurationConstants.Name);
+                        xmlWriter.WriteAttributeString("col", configurationConstants.NameInTable);
+
+                        foreach (ConfigurationObjectTablePart tablePart in configurationConstants.TabularParts.Values)
                         {
-                            xmlWriter.Close();
-                            return;
+                            if (Cancel)
+                                break;
+
+                            xmlWriter.WriteStartElement("TablePart");
+                            xmlWriter.WriteAttributeString("name", tablePart.Name);
+                            xmlWriter.WriteAttributeString("tab", tablePart.Table);
+
+                            WriteQuerySelect(xmlWriter, $@"SELECT uid{GetAllFields(tablePart.Fields)} FROM {tablePart.Table}");
+
+                            xmlWriter.WriteEndElement();
                         }
+
+                        WriteQuerySelect(xmlWriter, $@"SELECT {configurationConstants.NameInTable} FROM tab_constants");
+
+                        xmlWriter.WriteEndElement(); //Constant
+                    }
+                }
+                xmlWriter.WriteEndElement(); //Constants
+            }
+
+            if (!Cancel)
+            {
+                ApendLine("ДОВІДНИКИ");
+
+                xmlWriter.WriteStartElement("Directories");
+                foreach (ConfigurationDirectories configurationDirectories in Conf.Directories.Values)
+                {
+                    if (Cancel)
+                        break;
+
+                    ApendLine(" --> Довідник: " + configurationDirectories.Name);
+
+                    xmlWriter.WriteStartElement("Directory");
+                    xmlWriter.WriteAttributeString("name", configurationDirectories.Name);
+                    xmlWriter.WriteAttributeString("tab", configurationDirectories.Table);
+
+                    WriteQuerySelect(xmlWriter, $@"SELECT uid{GetAllFields(configurationDirectories.Fields)} FROM {configurationDirectories.Table}");
+
+                    foreach (ConfigurationObjectTablePart tablePart in configurationDirectories.TabularParts.Values)
+                    {
+                        if (Cancel)
+                            break;
 
                         xmlWriter.WriteStartElement("TablePart");
                         xmlWriter.WriteAttributeString("name", tablePart.Name);
                         xmlWriter.WriteAttributeString("tab", tablePart.Table);
 
-                        WriteQuerySelect(xmlWriter, $@"SELECT uid{GetAllFields(tablePart.Fields)} FROM {tablePart.Table}");
+                        WriteQuerySelect(xmlWriter, $@"SELECT uid, owner{GetAllFields(tablePart.Fields)} FROM {tablePart.Table}");
 
                         xmlWriter.WriteEndElement();
                     }
 
-                    WriteQuerySelect(xmlWriter, $@"SELECT {configurationConstants.NameInTable} FROM tab_constants");
-
-                    xmlWriter.WriteEndElement(); //Constant
+                    xmlWriter.WriteEndElement(); //Directory
                 }
+                xmlWriter.WriteEndElement(); //Directories
             }
-            xmlWriter.WriteEndElement(); //Constants
 
-            ApendLine("ДОВІДНИКИ");
-
-            xmlWriter.WriteStartElement("Directories");
-            foreach (ConfigurationDirectories configurationDirectories in Conf.Directories.Values)
+            if (!Cancel)
             {
-                if (Cancel)
-                {
-                    xmlWriter.Close();
-                    return;
-                }
+                ApendLine("ДОКУМЕНТИ");
 
-                ApendLine(" --> Довідник: " + configurationDirectories.Name);
-
-                xmlWriter.WriteStartElement("Directory");
-                xmlWriter.WriteAttributeString("name", configurationDirectories.Name);
-                xmlWriter.WriteAttributeString("tab", configurationDirectories.Table);
-
-                //WriteFieldsInfo(xmlWriter, configurationDirectories.Fields);
-                //WriteTabularPartsInfo(xmlWriter, configurationDirectories.TabularParts);
-
-                WriteQuerySelect(xmlWriter, $@"SELECT uid{GetAllFields(configurationDirectories.Fields)} FROM {configurationDirectories.Table}");
-
-                foreach (ConfigurationObjectTablePart tablePart in configurationDirectories.TabularParts.Values)
+                xmlWriter.WriteStartElement("Documents");
+                foreach (ConfigurationDocuments configurationDocuments in Conf.Documents.Values)
                 {
                     if (Cancel)
+                        break;
+
+                    ApendLine(" --> Документ: " + configurationDocuments.Name);
+
+                    xmlWriter.WriteStartElement("Document");
+                    xmlWriter.WriteAttributeString("name", configurationDocuments.Name);
+                    xmlWriter.WriteAttributeString("tab", configurationDocuments.Table);
+
+                    WriteQuerySelect(xmlWriter, $@"SELECT uid, spend, spend_date{GetAllFields(configurationDocuments.Fields)} FROM {configurationDocuments.Table}");
+
+                    foreach (ConfigurationObjectTablePart tablePart in configurationDocuments.TabularParts.Values)
                     {
-                        xmlWriter.Close();
-                        return;
+                        if (Cancel)
+                            break;
+
+                        xmlWriter.WriteStartElement("TablePart");
+                        xmlWriter.WriteAttributeString("name", tablePart.Name);
+                        xmlWriter.WriteAttributeString("tab", tablePart.Table);
+
+                        WriteQuerySelect(xmlWriter, $@"SELECT uid, owner{GetAllFields(tablePart.Fields)} FROM {tablePart.Table}");
+
+                        xmlWriter.WriteEndElement();
                     }
 
-                    xmlWriter.WriteStartElement("TablePart");
-                    xmlWriter.WriteAttributeString("name", tablePart.Name);
-                    xmlWriter.WriteAttributeString("tab", tablePart.Table);
-
-                    WriteQuerySelect(xmlWriter, $@"SELECT uid, owner{GetAllFields(tablePart.Fields)} FROM {tablePart.Table}");
-
-                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteEndElement(); //Document
                 }
-
-                xmlWriter.WriteEndElement(); //Directory
+                xmlWriter.WriteEndElement(); //Documents
             }
-            xmlWriter.WriteEndElement(); //Directories
 
-            ApendLine("ДОКУМЕНТИ");
-
-            xmlWriter.WriteStartElement("Documents");
-            foreach (ConfigurationDocuments configurationDocuments in Conf.Documents.Values)
+            if (!Cancel)
             {
-                if (Cancel)
-                {
-                    xmlWriter.Close();
-                    return;
-                }
+                ApendLine("РЕГІСТРИ ІНФОРМАЦІЇ");
 
-                ApendLine(" --> Документ: " + configurationDocuments.Name);
-
-                xmlWriter.WriteStartElement("Document");
-                xmlWriter.WriteAttributeString("name", configurationDocuments.Name);
-                xmlWriter.WriteAttributeString("tab", configurationDocuments.Table);
-
-                //WriteFieldsInfo(xmlWriter, configurationDocuments.Fields);
-                //WriteTabularPartsInfo(xmlWriter, configurationDocuments.TabularParts);
-
-                WriteQuerySelect(xmlWriter, $@"SELECT uid, spend, spend_date{GetAllFields(configurationDocuments.Fields)} FROM {configurationDocuments.Table}");
-
-                foreach (ConfigurationObjectTablePart tablePart in configurationDocuments.TabularParts.Values)
+                xmlWriter.WriteStartElement("RegistersInformation");
+                foreach (ConfigurationRegistersInformation configurationRegistersInformation in Conf.RegistersInformation.Values)
                 {
                     if (Cancel)
-                    {
-                        xmlWriter.Close();
-                        return;
-                    }
+                        break;
 
-                    xmlWriter.WriteStartElement("TablePart");
-                    xmlWriter.WriteAttributeString("name", tablePart.Name);
-                    xmlWriter.WriteAttributeString("tab", tablePart.Table);
+                    ApendLine(" --> Регістр: " + configurationRegistersInformation.Name);
 
-                    WriteQuerySelect(xmlWriter, $@"SELECT uid, owner{GetAllFields(tablePart.Fields)} FROM {tablePart.Table}");
+                    xmlWriter.WriteStartElement("Register");
+                    xmlWriter.WriteAttributeString("name", configurationRegistersInformation.Name);
+                    xmlWriter.WriteAttributeString("tab", configurationRegistersInformation.Table);
 
-                    xmlWriter.WriteEndElement();
+                    string query_fields = GetAllFields(configurationRegistersInformation.DimensionFields) +
+                        GetAllFields(configurationRegistersInformation.ResourcesFields) +
+                        GetAllFields(configurationRegistersInformation.PropertyFields);
+
+                    WriteQuerySelect(xmlWriter, $@"SELECT uid, period, owner{query_fields} FROM {configurationRegistersInformation.Table}");
+
+                    xmlWriter.WriteEndElement(); //Register
                 }
-
-                xmlWriter.WriteEndElement(); //Document
+                xmlWriter.WriteEndElement(); //RegistersInformation
             }
-            xmlWriter.WriteEndElement(); //Documents
 
-            ApendLine("РЕГІСТРИ ІНФОРМАЦІЇ");
-
-            xmlWriter.WriteStartElement("RegistersInformation");
-            foreach (ConfigurationRegistersInformation configurationRegistersInformation in Conf.RegistersInformation.Values)
+            if (!Cancel)
             {
-                if (Cancel)
+                ApendLine("РЕГІСТРИ НАКОПИЧЕННЯ");
+
+                xmlWriter.WriteStartElement("RegistersAccumulation");
+                foreach (ConfigurationRegistersAccumulation configurationRegistersAccumulation in Conf.RegistersAccumulation.Values)
                 {
-                    xmlWriter.Close();
-                    return;
+                    if (Cancel)
+                        break;
+
+                    ApendLine(" --> Регістр: " + configurationRegistersAccumulation.Name);
+
+                    xmlWriter.WriteStartElement("Register");
+                    xmlWriter.WriteAttributeString("name", configurationRegistersAccumulation.Name);
+                    xmlWriter.WriteAttributeString("tab", configurationRegistersAccumulation.Table);
+
+                    string query_fields = GetAllFields(configurationRegistersAccumulation.DimensionFields) +
+                        GetAllFields(configurationRegistersAccumulation.ResourcesFields) +
+                        GetAllFields(configurationRegistersAccumulation.PropertyFields);
+
+                    WriteQuerySelect(xmlWriter, $@"SELECT uid, period, income, owner{query_fields} FROM {configurationRegistersAccumulation.Table}");
+
+                    xmlWriter.WriteEndElement(); //Register
                 }
-
-                ApendLine(" --> Регістр: " + configurationRegistersInformation.Name);
-
-                xmlWriter.WriteStartElement("Register");
-                xmlWriter.WriteAttributeString("name", configurationRegistersInformation.Name);
-                xmlWriter.WriteAttributeString("tab", configurationRegistersInformation.Table);
-
-                //xmlWriter.WriteStartElement("DimensionFields");
-                //WriteFieldsInfo(xmlWriter, configurationRegistersInformation.DimensionFields);
-                //xmlWriter.WriteEndElement();
-
-                //xmlWriter.WriteStartElement("ResourcesFields");
-                //WriteFieldsInfo(xmlWriter, configurationRegistersInformation.ResourcesFields);
-                //xmlWriter.WriteEndElement();
-
-                //xmlWriter.WriteStartElement("PropertyFields");
-                //WriteFieldsInfo(xmlWriter, configurationRegistersInformation.PropertyFields);
-                //xmlWriter.WriteEndElement();
-
-                string query_fields = GetAllFields(configurationRegistersInformation.DimensionFields) +
-                    GetAllFields(configurationRegistersInformation.ResourcesFields) +
-                    GetAllFields(configurationRegistersInformation.PropertyFields);
-
-                WriteQuerySelect(xmlWriter, $@"SELECT uid, period, owner{query_fields} FROM {configurationRegistersInformation.Table}");
-
-                xmlWriter.WriteEndElement(); //Register
+                xmlWriter.WriteEndElement(); //RegistersAccumulation
             }
-            xmlWriter.WriteEndElement(); //RegistersInformation
-
-            ApendLine("РЕГІСТРИ НАКОПИЧЕННЯ");
-
-            xmlWriter.WriteStartElement("RegistersAccumulation");
-            foreach (ConfigurationRegistersAccumulation configurationRegistersAccumulation in Conf.RegistersAccumulation.Values)
-            {
-                if (Cancel)
-                {
-                    xmlWriter.Close();
-                    return;
-                }
-
-                ApendLine(" --> Регістр: " + configurationRegistersAccumulation.Name);
-
-                xmlWriter.WriteStartElement("Register");
-                xmlWriter.WriteAttributeString("name", configurationRegistersAccumulation.Name);
-                xmlWriter.WriteAttributeString("tab", configurationRegistersAccumulation.Table);
-
-                //xmlWriter.WriteStartElement("DimensionFields");
-                //WriteFieldsInfo(xmlWriter, configurationRegistersAccumulation.DimensionFields);
-                //xmlWriter.WriteEndElement();
-
-                //xmlWriter.WriteStartElement("ResourcesFields");
-                //WriteFieldsInfo(xmlWriter, configurationRegistersAccumulation.ResourcesFields);
-                //xmlWriter.WriteEndElement();
-
-                //xmlWriter.WriteStartElement("PropertyFields");
-                //WriteFieldsInfo(xmlWriter, configurationRegistersAccumulation.PropertyFields);
-                //xmlWriter.WriteEndElement();
-
-                string query_fields = GetAllFields(configurationRegistersAccumulation.DimensionFields) +
-                    GetAllFields(configurationRegistersAccumulation.ResourcesFields) +
-                    GetAllFields(configurationRegistersAccumulation.PropertyFields);
-
-                WriteQuerySelect(xmlWriter, $@"SELECT uid, period, income, owner{query_fields} FROM {configurationRegistersAccumulation.Table}");
-
-                xmlWriter.WriteEndElement(); //Register
-            }
-            xmlWriter.WriteEndElement(); //RegistersAccumulation
 
             xmlWriter.WriteEndElement(); //root
             xmlWriter.WriteEndDocument();
@@ -459,6 +415,9 @@ namespace Configurator
 
             foreach (object[] row in listRow)
             {
+                if (Cancel)
+                    break;
+
                 int counter = 0;
 
                 xmlWriter.WriteStartElement("row");
@@ -525,40 +484,44 @@ namespace Configurator
 
             ApendLine("Аналіз: ");
 
-            if (Cancel)
-                return;
+            string pathToXmlResultStepOne = "";
 
-            ApendLine(" --> Крок 1");
-            string pathToXmlResultStepOne = TransformXmlDataStepOne(fileImport.ToString());
-
-            if (Cancel)
-                return;
-
-            ApendLine(" --> Крок 2");
-            string pathToXmlResultStepSQL = TransformStepOneToStepSQL(fileImport.ToString(), pathToXmlResultStepOne);
-
-            if (Cancel)
-                return;
-
-            ApendLine("Виконання команд: ");
-
-            try
+            if (!Cancel)
             {
-                Program.Kernel.DataBase.BeginTransaction();
-
-                bool resultat = ExecuteSqlList(pathToXmlResultStepSQL);
-
-                if (resultat)
-                    Program.Kernel.DataBase.CommitTransaction();
-                else
-                    Program.Kernel.DataBase.RollbackTransaction();
+                ApendLine(" --> Крок 1");
+                pathToXmlResultStepOne = TransformXmlDataStepOne(fileImport.ToString());
             }
-            catch (Exception ex)
-            {
-                ApendLine("Помилка: " + ex.Message);
 
-                Program.Kernel.DataBase.RollbackTransaction();
-                return;
+            string pathToXmlResultStepSQL = "";
+
+            if (!Cancel)
+            {
+                ApendLine(" --> Крок 2");
+                pathToXmlResultStepSQL = TransformStepOneToStepSQL(fileImport.ToString(), pathToXmlResultStepOne);
+            }
+
+            if (!Cancel)
+            {
+                ApendLine("Виконання команд: ");
+
+                try
+                {
+                    Program.Kernel.DataBase.BeginTransaction();
+
+                    bool resultat = ExecuteSqlList(pathToXmlResultStepSQL);
+
+                    if (resultat)
+                        Program.Kernel.DataBase.CommitTransaction();
+                    else
+                        Program.Kernel.DataBase.RollbackTransaction();
+                }
+                catch (Exception ex)
+                {
+                    ApendLine("Помилка: " + ex.Message);
+
+                    Program.Kernel.DataBase.RollbackTransaction();
+                    return;
+                }
             }
 
             //Видалення тимчасових файлів

@@ -487,14 +487,14 @@ namespace Configurator
 
 				if (!String.IsNullOrEmpty(bodySelect))
 				{
-					richTextBoxInfo.SelectionFont = new Font("Consolas"/*"Microsoft Sans Serif"*/, 12);
+					//richTextBoxInfo.SelectionFont = new Font("Consolas"/*"Microsoft Sans Serif"*/, 12);
 					//richTextBoxInfo.SelectionColor = Color.DarkBlue;
 					richTextBoxInfo.AppendText(bodySelect);
 				}
 
 				if (!String.IsNullOrEmpty(bodySelect))
 				{
-					richTextBoxInfo.SelectionFont = new Font("Consolas", 12);
+					//richTextBoxInfo.SelectionFont = new Font("Consolas", 12);
 					richTextBoxInfo.SelectionColor = Color.Black;
 				}
 
