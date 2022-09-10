@@ -43,7 +43,7 @@ namespace Configurator
                     fileExport = AutoCommandExecuteParam;
                 else
                     fileExport = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath),
-                       "StorageAndTrade_Export_" + DateTime.Now.ToString("dd_MM_yyyy") + ".xml");
+                       Conf.Name + "_Export_" + DateTime.Now.ToString("dd_MM_yyyy") + ".xml");
 
                 Cancel = false;
 
@@ -83,7 +83,7 @@ namespace Configurator
         private void buttonUnloadingData_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.FileName = "StorageAndTrade_Export_" + DateTime.Now.ToString("dd_MM_yyyy") + ".xml";
+            saveFileDialog.FileName = Conf.Name + "_Export_" + DateTime.Now.ToString("dd_MM_yyyy") + ".xml";
             saveFileDialog.Filter = "XML|*.xml";
             saveFileDialog.Title = "Файл для вигрузки даних";
             saveFileDialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
