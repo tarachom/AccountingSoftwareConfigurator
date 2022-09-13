@@ -616,7 +616,40 @@ limitations under the License.
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:when>
-			
+			  
+			  <xsl:when test="Type/DataType = 'bytea'">				  
+                <xsl:choose>
+                    <xsl:when test="$ReplacementColumn = 'yes'">
+
+                    <info>Заміна колонки! Втрата даних!</info>
+                    <sql>BEGIN;</sql>
+                    <xsl:call-template name="Template_DropColumn">
+                        <xsl:with-param name="TableName" select="$TableName" />
+                        <xsl:with-param name="FieldNameInTable" select="NameInTable" />
+                    </xsl:call-template>
+                    <xsl:call-template name="Template_AddColumn">
+                        <xsl:with-param name="TableName" select="$TableName" />
+                        <xsl:with-param name="FieldNameInTable" select="NameInTable" />
+                        <xsl:with-param name="DataTypeCreate" select="Type/DataTypeCreate" />
+                    </xsl:call-template>
+                    <sql>COMMIT;</sql>
+
+                    </xsl:when>
+                    <xsl:otherwise>
+
+                    <info>Реструкторизація неможлива, створення копії колонки!</info>
+                    <sql>BEGIN;</sql>
+                    <xsl:call-template name="Template_CopyColumn">
+                        <xsl:with-param name="TableName" select="$TableName" />
+                        <xsl:with-param name="FieldNameInTable" select="NameInTable" />
+                        <xsl:with-param name="DataTypeCreate" select="Type/DataTypeCreate" />
+                    </xsl:call-template>
+                    <sql>COMMIT;</sql>
+
+                    </xsl:otherwise>
+                 </xsl:choose>
+              </xsl:when>
+				
               <xsl:otherwise>
                 <info>ПОМИЛКА! Не вдалось знайти спосіб реструктуризації для даного типу.</info>
               </xsl:otherwise>

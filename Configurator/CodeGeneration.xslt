@@ -73,6 +73,9 @@ limitations under the License.
       <xsl:when test="Type = 'enum'">
         <xsl:value-of select="Pointer"/>
       </xsl:when>
+	  <xsl:when test="Type = 'bytea'">
+	    <xsl:text>byte[]</xsl:text>
+      </xsl:when>
     </xsl:choose>    
   </xsl:template>
   
@@ -123,6 +126,9 @@ limitations under the License.
       <xsl:when test="Type = 'enum'">
         <xsl:text>0</xsl:text>
       </xsl:when>
+	  <xsl:when test="Type = 'bytea'">
+	    <xsl:text>new byte[] { }</xsl:text>
+      </xsl:when>
     </xsl:choose>
   </xsl:template>
 
@@ -170,6 +176,9 @@ limitations under the License.
       </xsl:when>
       <xsl:when test="Type = 'enum'">
         <xsl:text>0</xsl:text>
+      </xsl:when>
+	  <xsl:when test="Type = 'bytea'">
+        <xsl:text>null</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -244,6 +253,11 @@ limitations under the License.
           <xsl:text>(</xsl:text><xsl:value-of select="Pointer"/><xsl:text>)</xsl:text>
           <xsl:value-of select="$BaseFieldContainer"/><xsl:text>["</xsl:text><xsl:value-of select="NameInTable"/><xsl:text>"]</xsl:text>
           <xsl:text> : 0</xsl:text>
+        </xsl:when>
+		<xsl:when test="Type = 'bytea'">
+          <xsl:text>(</xsl:text><xsl:value-of select="$BaseFieldContainer"/><xsl:text>["</xsl:text><xsl:value-of select="NameInTable"/><xsl:text>"] != DBNull.Value) ? </xsl:text>
+          <xsl:text>(byte[])</xsl:text><xsl:value-of select="$BaseFieldContainer"/><xsl:text>["</xsl:text><xsl:value-of select="NameInTable"/><xsl:text>"]</xsl:text>
+          <xsl:text> : new byte[] { }</xsl:text>
         </xsl:when>
      </xsl:choose>
   </xsl:template>

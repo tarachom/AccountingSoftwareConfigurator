@@ -250,6 +250,18 @@ limitations under the License.
                 </xsl:choose>
               </xsl:if>
 
+			 <xsl:if test="$ConfFieldType = 'bytea'">
+                <xsl:choose>
+                  <xsl:when test="$InfoSchemaFieldDataType = 'bytea' and $InfoSchemaFieldUdtName = 'bytea'">
+                    <Coincide>yes</Coincide>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <Coincide>no</Coincide>
+                    <DataTypeCreate>bytea</DataTypeCreate>
+                  </xsl:otherwise>
+                </xsl:choose>
+             </xsl:if>
+				
             </Type>
           </xsl:when>
           <xsl:otherwise>
@@ -335,6 +347,9 @@ limitations under the License.
           </xsl:when>
           <xsl:when test="Type = 'enum'">
             <xsl:text>integer</xsl:text>
+          </xsl:when>
+		  <xsl:when test="Type = 'bytea'">
+            <xsl:text>bytea</xsl:text>
           </xsl:when>
         </xsl:choose>
       </DataType>
