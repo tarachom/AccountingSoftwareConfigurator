@@ -1,12 +1,30 @@
-﻿using System;
+﻿/*
+Copyright (C) 2019-2022 TARAKHOMYN YURIY IVANOVYCH
+All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*
+Автор:    Тарахомин Юрій Іванович
+Адреса:   Україна, м. Львів
+Сайт:     accounting.org.ua
+*/
+
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using System.Xml;
@@ -14,7 +32,6 @@ using System.Xml.Xsl;
 using System.Xml.XPath;
 using AccountingSoftware;
 using System.IO;
-
 
 namespace Configurator
 {
@@ -27,7 +44,7 @@ namespace Configurator
 
         public Configuration Conf { get; set; }
 
-        private bool Cancel = false;
+        CancellationTokenSource CancellationTokenThread { get; set; }
         private Thread thread;
 
         public string AutoCommandExecute { get; set; }
@@ -45,13 +62,12 @@ namespace Configurator
                     fileExport = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath),
                        Conf.Name + "_Export_" + DateTime.Now.ToString("dd_MM_yyyy") + ".xml");
 
-                Cancel = false;
-
                 buttonLoadingData.Enabled = buttonUnloadingData.Enabled = false;
                 buttonStop.Enabled = true;
 
                 richTextBoxInfo.Text = "";
 
+                CancellationTokenThread = new CancellationTokenSource();
                 thread = new Thread(new ParameterizedThreadStart(ExportData));
                 thread.Start(fileExport);
             }
@@ -68,13 +84,12 @@ namespace Configurator
                     return;
                 }
 
-                Cancel = false;
-
                 buttonLoadingData.Enabled = buttonUnloadingData.Enabled = false;
                 buttonStop.Enabled = true;
 
                 richTextBoxInfo.Text = "";
 
+                CancellationTokenThread = new CancellationTokenSource();
                 thread = new Thread(new ParameterizedThreadStart(ImportData));
                 thread.Start(fileImport);
             }
@@ -94,13 +109,12 @@ namespace Configurator
             {
                 string fileExport = saveFileDialog.FileName;
 
-                Cancel = false;
-
                 buttonLoadingData.Enabled = buttonUnloadingData.Enabled = false;
                 buttonStop.Enabled = true;
 
                 richTextBoxInfo.Text = "";
 
+                CancellationTokenThread = new CancellationTokenSource();
                 thread = new Thread(new ParameterizedThreadStart(ExportData));
                 thread.Start(fileExport); 
             }
@@ -119,13 +133,12 @@ namespace Configurator
             {
                 string fileImport = openFileDialog.FileName;
 
-                Cancel = false;
-
                 buttonLoadingData.Enabled = buttonUnloadingData.Enabled = false;
                 buttonStop.Enabled = true;
 
                 richTextBoxInfo.Text = "";
 
+                CancellationTokenThread = new CancellationTokenSource();
                 thread = new Thread(new ParameterizedThreadStart(ImportData));
                 thread.Start(fileImport); 
             }
@@ -137,7 +150,7 @@ namespace Configurator
 
             buttonStop.Enabled = false;
 
-            Cancel = true;
+            CancellationTokenThread.Cancel();
         }
 
         #region Export
@@ -156,21 +169,21 @@ namespace Configurator
             xmlWriter.WriteStartDocument();
             xmlWriter.WriteStartElement("root");
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine("КОНСТАНТИ");
 
                 xmlWriter.WriteStartElement("Constants");
                 foreach (ConfigurationConstantsBlock configurationConstantsBlock in Conf.ConstantsBlock.Values)
                 {
-                    if (Cancel)
+                    if (CancellationTokenThread.IsCancellationRequested)
                         break;
 
                     ApendLine(configurationConstantsBlock.BlockName);
 
                     foreach (ConfigurationConstants configurationConstants in configurationConstantsBlock.Constants.Values)
                     {
-                        if (Cancel)
+                        if (CancellationTokenThread.IsCancellationRequested)
                             break;
 
                         ApendLine(" --> Константа: " + configurationConstants.Name);
@@ -181,7 +194,7 @@ namespace Configurator
 
                         foreach (ConfigurationObjectTablePart tablePart in configurationConstants.TabularParts.Values)
                         {
-                            if (Cancel)
+                            if (CancellationTokenThread.IsCancellationRequested)
                                 break;
 
                             xmlWriter.WriteStartElement("TablePart");
@@ -201,14 +214,14 @@ namespace Configurator
                 xmlWriter.WriteEndElement(); //Constants
             }
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine("ДОВІДНИКИ");
 
                 xmlWriter.WriteStartElement("Directories");
                 foreach (ConfigurationDirectories configurationDirectories in Conf.Directories.Values)
                 {
-                    if (Cancel)
+                    if (CancellationTokenThread.IsCancellationRequested)
                         break;
 
                     ApendLine(" --> Довідник: " + configurationDirectories.Name);
@@ -221,7 +234,7 @@ namespace Configurator
 
                     foreach (ConfigurationObjectTablePart tablePart in configurationDirectories.TabularParts.Values)
                     {
-                        if (Cancel)
+                        if (CancellationTokenThread.IsCancellationRequested)
                             break;
 
                         xmlWriter.WriteStartElement("TablePart");
@@ -238,14 +251,14 @@ namespace Configurator
                 xmlWriter.WriteEndElement(); //Directories
             }
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine("ДОКУМЕНТИ");
 
                 xmlWriter.WriteStartElement("Documents");
                 foreach (ConfigurationDocuments configurationDocuments in Conf.Documents.Values)
                 {
-                    if (Cancel)
+                    if (CancellationTokenThread.IsCancellationRequested)
                         break;
 
                     ApendLine(" --> Документ: " + configurationDocuments.Name);
@@ -258,7 +271,7 @@ namespace Configurator
 
                     foreach (ConfigurationObjectTablePart tablePart in configurationDocuments.TabularParts.Values)
                     {
-                        if (Cancel)
+                        if (CancellationTokenThread.IsCancellationRequested)
                             break;
 
                         xmlWriter.WriteStartElement("TablePart");
@@ -275,14 +288,14 @@ namespace Configurator
                 xmlWriter.WriteEndElement(); //Documents
             }
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine("РЕГІСТРИ ІНФОРМАЦІЇ");
 
                 xmlWriter.WriteStartElement("RegistersInformation");
                 foreach (ConfigurationRegistersInformation configurationRegistersInformation in Conf.RegistersInformation.Values)
                 {
-                    if (Cancel)
+                    if (CancellationTokenThread.IsCancellationRequested)
                         break;
 
                     ApendLine(" --> Регістр: " + configurationRegistersInformation.Name);
@@ -302,14 +315,14 @@ namespace Configurator
                 xmlWriter.WriteEndElement(); //RegistersInformation
             }
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine("РЕГІСТРИ НАКОПИЧЕННЯ");
 
                 xmlWriter.WriteStartElement("RegistersAccumulation");
                 foreach (ConfigurationRegistersAccumulation configurationRegistersAccumulation in Conf.RegistersAccumulation.Values)
                 {
-                    if (Cancel)
+                    if (CancellationTokenThread.IsCancellationRequested)
                         break;
 
                     ApendLine(" --> Регістр: " + configurationRegistersAccumulation.Name);
@@ -415,7 +428,7 @@ namespace Configurator
 
             foreach (object[] row in listRow)
             {
-                if (Cancel)
+                if (CancellationTokenThread.IsCancellationRequested)
                     break;
 
                 int counter = 0;
@@ -486,7 +499,7 @@ namespace Configurator
 
             string pathToXmlResultStepOne = "";
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine(" --> Крок 1");
                 pathToXmlResultStepOne = TransformXmlDataStepOne(fileImport.ToString());
@@ -494,13 +507,13 @@ namespace Configurator
 
             string pathToXmlResultStepSQL = "";
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine(" --> Крок 2");
                 pathToXmlResultStepSQL = TransformStepOneToStepSQL(fileImport.ToString(), pathToXmlResultStepOne);
             }
 
-            if (!Cancel)
+            if (!CancellationTokenThread.IsCancellationRequested)
             {
                 ApendLine("Виконання команд: ");
 
@@ -601,7 +614,7 @@ namespace Configurator
             XPathNodeIterator rowNodes = xPathDocNavigator.Select("/root/row");
             while (rowNodes.MoveNext())
             {
-                if (Cancel)
+                if (CancellationTokenThread.IsCancellationRequested)
                     return false;
 
                 XPathNavigator sqlNode = rowNodes.Current.SelectSingleNode("sql");

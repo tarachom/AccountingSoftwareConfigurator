@@ -21,11 +21,9 @@ limitations under the License.
 Сайт:     accounting.org.ua
 */
 
-
 using System;
 using System.Windows.Forms;
 using AccountingSoftware;
-using System.IO;
 
 namespace Configurator
 {

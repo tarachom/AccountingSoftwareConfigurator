@@ -21,7 +21,6 @@ limitations under the License.
 Сайт:     accounting.org.ua
 */
 
-
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -166,11 +165,6 @@ namespace Configurator
 
 			PathToXML = assemblyLocation + "\\ConfigurationParam.xml";
 			PathToConfXML = assemblyLocation + "\\Confa.xml";
-
-#if DEBUG
-			//Конфігурація береться із папки Configurator
-			//PathToConfXML = @"E:\Project\StorageAndTrade\StorageAndTrade\bin\Debug\Confa.xml";
-#endif
 
 			LoadConfigurationParamFromXML();
 

@@ -1,19 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿/*
+Copyright (C) 2019-2022 TARAKHOMYN YURIY IVANOVYCH
+All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/*
+Автор:    Тарахомин Юрій Іванович
+Адреса:   Україна, м. Львів
+Сайт:     accounting.org.ua
+*/
+
+using System;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using System.Xml;
-using System.Xml.XPath;
 using AccountingSoftware;
-using System.IO;
-
 
 namespace Configurator
 {
@@ -25,7 +37,7 @@ namespace Configurator
         }
 
         public Configuration Conf { get; set; }
-        private bool Cancel = false;
+        CancellationTokenSource CancellationTokenThread { get; set; }
         private Thread thread;
 
         public string AutoCommandExecute { get; set; }
@@ -44,12 +56,11 @@ namespace Configurator
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            Cancel = false;
-
             buttonStart.Enabled = false;
             buttonStop.Enabled = true;
             richTextBoxInfo.Text = "";
 
+            CancellationTokenThread = new CancellationTokenSource();
             thread = new Thread(new ThreadStart(MaintenanceTable));
             thread.Start();
         }
@@ -66,7 +77,7 @@ namespace Configurator
 
             foreach (ConfigurationInformationSchema_Table table in informationSchema.Tables.Values)
             {
-                if (Cancel)
+                if (CancellationTokenThread.IsCancellationRequested)
                     break;
 
                 ApendLine($" --> {table.TableName}");
@@ -103,7 +114,7 @@ namespace Configurator
             buttonStart.Enabled = true;
             buttonStop.Enabled = false;
 
-            Cancel = true;
+            CancellationTokenThread.Cancel();
         }
     }
 }
