@@ -777,7 +777,9 @@ namespace <xsl:value-of select="Configuration/NameSpace"/>.Довідники
             Owner = owner;
             Records = new List&lt;Record&gt;();
         }
-        
+        <xsl:for-each select="Fields/Field">
+        public const string <xsl:value-of select="Name"/> = "<xsl:value-of select="NameInTable"/>";</xsl:for-each>
+
         public <xsl:value-of select="$DirectoryName"/>_Objest Owner { get; private set; }
         
         public List&lt;Record&gt; Records { get; set; }

@@ -719,7 +719,6 @@ namespace Configurator
         }
 
         #endregion
-
         private void ApendLine(string text)
         {
             if (richTextBoxInfo.InvokeRequired)
