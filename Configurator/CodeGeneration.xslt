@@ -975,16 +975,18 @@ namespace <xsl:value-of select="Configuration/NameSpace"/>.Документи
             </xsl:if>
 		}
 
-		public void SpendTheDocument(DateTime spendDate)
+		public bool SpendTheDocument(DateTime spendDate)
 		{
             <xsl:choose>
                 <xsl:when test="normalize-space(SpendFunctions/Spend) != ''">
-					<xsl:text>BaseSpend(</xsl:text><xsl:value-of select="SpendFunctions/Spend"/>
-					<xsl:text>(this), spendDate);</xsl:text>
-                </xsl:when>
+		    <xsl:text>bool rezult = </xsl:text><xsl:value-of select="SpendFunctions/Spend"/><xsl:text>(this)</xsl:text>;
+		    <xsl:text>BaseSpend(rezult, spendDate)</xsl:text>;
+		    <xsl:text>return rezult;</xsl:text>
+				</xsl:when>
                 <xsl:otherwise>
-					<xsl:text>BaseSpend(false, DateTime.MinValue);</xsl:text>
-                </xsl:otherwise>
+		    <xsl:text>BaseSpend(false, DateTime.MinValue)</xsl:text>;
+		    <xsl:text>return false;</xsl:text>
+				</xsl:otherwise>
             </xsl:choose>
 		}
 
